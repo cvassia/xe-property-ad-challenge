@@ -16,6 +16,26 @@ type AreaSuggestion = {
   label: string;
 };
 
+type CreatedAd = {
+  id: string;
+  title: string;
+  type: string;
+  price: number;
+  description: string | null;
+  area: {
+    placeId: string;
+    mainText: string;
+    secondaryText: string;
+  };
+  createdAt: string;
+};
+
+type CreateAdResponse = {
+  data?: CreatedAd;
+  error?: string;
+  details?: string[];
+};
+
 const propertyTypes = [
   { value: "", label: "Select type" },
   { value: "rent", label: "Rent" },
@@ -157,23 +177,22 @@ const SuggestionButton = styled.button<{ $active?: boolean }>`
     font-size: 0.85rem;
   }
 `;
-const RequirementsCard = styled.aside`
-  padding: 20px;
-  border: 1px solid #dce4ef;
-  border-radius: 22px;
-  background: #f8fbff;
 
-  h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 1rem;
-  }
 
-  ul {
-    margin: 14px 0 0;
-    padding-left: 20px;
-    color: #4d5a70;
-    line-height: 1.7;
+const SubmitMessage = styled.div<{ $variant: "success" | "error" }>`
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid
+    ${({ $variant }) => ($variant === "success" ? "#b7e4c7" : "#f3b4ae")};
+  background: ${({ $variant }) =>
+    $variant === "success" ? "#ecfdf3" : "#fff4f2"};
+  color: ${({ $variant }) => ($variant === "success" ? "#24563b" : "#b42318")};
+  font-size: 0.95rem;
+  line-height: 1.6;
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
   }
 `;
 
@@ -192,8 +211,13 @@ const SubmitButton = styled.button`
   font-weight: 800;
   box-shadow: 0 14px 30px rgb(52 100 212 / 24%);
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #284fad;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
   }
 
   @media (max-width: 720px) {
@@ -226,6 +250,8 @@ export function PropertyAdForm() {
   const [areaError, setAreaError] = useState("");
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const [areaValidationError, setAreaValidationError] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [createdAd, setCreatedAd] = useState<CreatedAd | null>(null);
 
 
   const autocompleteRef = useRef<HTMLDivElement | null>(null);
@@ -233,7 +259,7 @@ export function PropertyAdForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<PropertyAdFormValues>({
     resolver: yupResolver(propertyAdSchema),
     mode: "onSubmit",
@@ -379,7 +405,10 @@ export function PropertyAdForm() {
     };
   }, []);
 
-  function onSubmit(values: PropertyAdFormValues) {
+  async function onSubmit(values: PropertyAdFormValues) {
+    setSubmitError("");
+    setCreatedAd(null);
+
     if (!selectedArea) {
       if (areaInput.trim().length >= 3 && suggestions.length === 0) {
         setAreaValidationError("");
@@ -399,12 +428,30 @@ export function PropertyAdForm() {
       }
     };
 
-    console.info("Validated property ad payload:", payload);
+    try {
+      const response = await fetch("/api/ads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = (await response.json()) as CreateAdResponse;
+
+      if (!response.ok || !result.data) {
+        throw new Error(result.error ?? "Could not create property ad.");
+      }
+
+      setCreatedAd(result.data);
+    } catch {
+      setSubmitError("Could not create property ad. Please try again.");
+    }
   }
 
   return (
     <Form
-      aria-label="Create property classified form"
+      aria-label="Create property form"
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
@@ -414,7 +461,7 @@ export function PropertyAdForm() {
           <TextInput
             type="text"
             maxLength={155}
-            placeholder="Classified title up to 155 characters"
+            placeholder="Title up to 155 characters"
             autoComplete="off"
             aria-invalid={Boolean(errors.title)}
             {...register("title")}
@@ -556,19 +603,24 @@ export function PropertyAdForm() {
           </FieldMessageArea>
         </Field>
       </FormGrid>
+      {createdAd && (
+        <SubmitMessage $variant="success" role="status">
+          <strong>Property ad created successfully.</strong>
+          Your property ad has been saved.
+        </SubmitMessage>
+      )}
 
-      <RequirementsCard aria-label="Form requirements">
-        <h2>Requirements covered</h2>
-        <ul>
-          <li>Area suggestions load from the backend after 3 characters.</li>
-          <li>The selected area keeps the required placeId.</li>
-          <li>All fields are required except extra description.</li>
-          <li>Title supports up to 155 characters.</li>
-          <li>Validation and persistence come next.</li>
-        </ul>
-      </RequirementsCard>
+      {submitError && (
+        <SubmitMessage $variant="error" role="alert">
+          <strong>Submission failed.</strong>
+          {submitError}
+        </SubmitMessage>
+      )}
+
       <FormActions>
-        <SubmitButton type="submit">Submit classified</SubmitButton>
+        <SubmitButton type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </SubmitButton>
       </FormActions>
     </Form>
   );
