@@ -1,0 +1,25 @@
+{
+  "name": "xe-property-ad-challenge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "XE Web Developer Challenge - Property ad creation app",
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace apps/api\" \"npm run dev --workspace apps/web\"",
+    "build": "npm run build --workspace apps/api && npm run build --workspace apps/web",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "dependencies": {
+    "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

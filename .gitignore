@@ -1,0 +1,24 @@
+node_modules
+dist
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# System files
+.DS_Store
+
+# Test and build output
+coverage
+playwright-report
+test-results
+*.log
+
+# Database
+*.db
+*.db-journal
+
+# IDE
+.vscode
+.idea
