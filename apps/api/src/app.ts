@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import { adsRouter } from "./routes/ads.js";
 import { areasRouter } from "./routes/areas.js";
 
 export function createApp() {
@@ -16,6 +17,7 @@ export function createApp() {
   });
 
   app.use("/api/areas", areasRouter);
+  app.use("/api/ads", adsRouter);
 
   return app;
 }

@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Ad {
+  id                String   @id @default(cuid())
+  title             String
+  type              String
+  price             Int
+  description       String?
+  areaPlaceId       String
+  areaMainText      String
+  areaSecondaryText String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

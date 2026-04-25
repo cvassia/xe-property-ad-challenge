@@ -18,6 +18,8 @@ test-results
 # Database
 *.db
 *.db-journal
+*.sqlite
+*.sqlite-journal
 
 # IDE
 .vscode
