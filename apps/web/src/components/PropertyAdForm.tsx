@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
 import styled from "styled-components";
 
 type AreaSuggestion = {
@@ -44,9 +45,12 @@ const FieldLabel = styled.span`
 `;
 
 const FieldGroup = styled.div`
-  position: relative;
   display: grid;
   gap: 8px;
+`;
+
+const AutocompleteWrapper = styled.div`
+  position: relative;
 `;
 
 const inputStyles = `
@@ -119,12 +123,12 @@ const SuggestionsList = styled.ul`
   list-style: none;
 `;
 
-const SuggestionButton = styled.button`
+const SuggestionButton = styled.button<{ $active?: boolean }>`
   width: 100%;
   border: 0;
   border-radius: 12px;
   padding: 12px;
-  background: transparent;
+  background: ${({ $active }) => ($active ? "#f1f5ff" : "transparent")};
   color: #172033;
   text-align: left;
 
@@ -147,7 +151,6 @@ const SuggestionButton = styled.button`
     font-size: 0.85rem;
   }
 `;
-
 const RequirementsCard = styled.aside`
   padding: 20px;
   border: 1px solid #dce4ef;
@@ -215,6 +218,9 @@ export function PropertyAdForm() {
   const [suggestions, setSuggestions] = useState<AreaSuggestion[]>([]);
   const [isLoadingAreas, setIsLoadingAreas] = useState(false);
   const [areaError, setAreaError] = useState("");
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+
+  const autocompleteRef = useRef<HTMLDivElement | null>(null);
 
   const debouncedAreaInput = useDebouncedValue(areaInput, 300);
 
@@ -277,6 +283,7 @@ export function PropertyAdForm() {
   function handleAreaChange(value: string) {
     setAreaInput(value);
     setSelectedArea(null);
+    setActiveSuggestionIndex(-1);
   }
 
   function handleAreaSelect(area: AreaSuggestion) {
@@ -284,7 +291,68 @@ export function PropertyAdForm() {
     setAreaInput(area.label);
     setSuggestions([]);
     setAreaError("");
+    setActiveSuggestionIndex(-1);
   }
+
+  function handleAreaKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (suggestions.length === 0) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+
+      setActiveSuggestionIndex((currentIndex) => {
+        if (currentIndex >= suggestions.length - 1) {
+          return 0;
+        }
+
+        return currentIndex + 1;
+      });
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+
+      setActiveSuggestionIndex((currentIndex) => {
+        if (currentIndex <= 0) {
+          return suggestions.length - 1;
+        }
+
+        return currentIndex - 1;
+      });
+    }
+
+    if (event.key === "Enter" && activeSuggestionIndex >= 0) {
+      event.preventDefault();
+      handleAreaSelect(suggestions[activeSuggestionIndex]);
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setSuggestions([]);
+      setActiveSuggestionIndex(-1);
+    }
+  }
+
+  useEffect(() => {
+    function handleDocumentMouseDown(event: MouseEvent) {
+      if (!autocompleteRef.current) {
+        return;
+      }
+
+      if (!autocompleteRef.current.contains(event.target as Node)) {
+        setSuggestions(result.data ?? []);
+        setActiveSuggestionIndex(-1);
+      }
+    }
+
+    document.addEventListener("mousedown", handleDocumentMouseDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentMouseDown);
+    };
+  }, []);
 
   return (
     <Form aria-label="Create property classified form">
@@ -298,6 +366,7 @@ export function PropertyAdForm() {
             placeholder="Classified title up to 155 characters"
             autoComplete="off"
           />
+          <FieldMessageArea />
         </Field>
 
         <Field>
@@ -313,25 +382,65 @@ export function PropertyAdForm() {
               </option>
             ))}
           </SelectInput>
+          <FieldMessageArea />
         </Field>
 
         <FieldGroup>
           <FieldLabel id="area-field-label">Area</FieldLabel>
 
-          <TextInput
-            name="area"
-            type="text"
-            role="combobox"
-            aria-labelledby="area-field-label"
-            aria-autocomplete="list"
-            aria-expanded={suggestions.length > 0}
-            aria-controls="area-suggestions"
-            aria-haspopup="listbox"
-            value={areaInput}
-            placeholder="Type at least 3 characters"
-            autoComplete="off"
-            onChange={(event) => handleAreaChange(event.target.value)}
-          />
+          <AutocompleteWrapper ref={autocompleteRef}>
+            <TextInput
+              name="area"
+              type="text"
+              role="combobox"
+              aria-labelledby="area-field-label"
+              aria-autocomplete="list"
+              aria-expanded={suggestions.length > 0}
+              aria-controls="area-suggestions"
+              aria-activedescendant={
+                activeSuggestionIndex >= 0
+                  ? `area-suggestion-${suggestions[activeSuggestionIndex].placeId}`
+                  : undefined
+              }
+              aria-haspopup="listbox"
+              value={areaInput}
+              placeholder="Type at least 3 characters"
+              autoComplete="off"
+              onChange={(event) => handleAreaChange(event.target.value)}
+              onKeyDown={handleAreaKeyDown}
+            />
+
+            {suggestions.length > 0 && (
+              <SuggestionsList
+                id="area-suggestions"
+                role="listbox"
+                aria-label="Area suggestions"
+              >
+                {suggestions.map((area, index) => {
+                  const isActive = index === activeSuggestionIndex;
+
+                  return (
+                    <li
+                      id={`area-suggestion-${area.placeId}`}
+                      key={area.placeId}
+                      role="option"
+                      aria-selected={isActive}
+                    >
+                      <SuggestionButton
+                        type="button"
+                        $active={isActive}
+                        onMouseEnter={() => setActiveSuggestionIndex(index)}
+                        onClick={() => handleAreaSelect(area)}
+                      >
+                        <strong>{area.mainText}</strong>
+                        <span>{area.secondaryText}</span>
+                      </SuggestionButton>
+                    </li>
+                  );
+                })}
+              </SuggestionsList>
+            )}
+          </AutocompleteWrapper>
 
           <FieldMessageArea>
             {isLoadingAreas && <FieldHint>Loading area suggestions...</FieldHint>}
@@ -350,26 +459,6 @@ export function PropertyAdForm() {
                 <FieldHint>No area suggestions found.</FieldHint>
               )}
           </FieldMessageArea>
-
-          {suggestions.length > 0 && (
-            <SuggestionsList
-              id="area-suggestions"
-              role="listbox"
-              aria-label="Area suggestions"
-            >
-              {suggestions.map((area) => (
-                <li key={area.placeId} role="option" aria-selected={false}>
-                  <SuggestionButton
-                    type="button"
-                    onClick={() => handleAreaSelect(area)}
-                  >
-                    <strong>{area.mainText}</strong>
-                    <span>{area.secondaryText}</span>
-                  </SuggestionButton>
-                </li>
-              ))}
-            </SuggestionsList>
-          )}
         </FieldGroup>
 
         <Field>
