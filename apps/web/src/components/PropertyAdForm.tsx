@@ -89,6 +89,18 @@ const FieldHint = styled.span`
   font-size: 0.85rem;
 `;
 
+const FieldMessageArea = styled.div`
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+`;
+
+const SelectedAreaHint = styled.span`
+  color: #24563b;
+  font-size: 0.85rem;
+  font-weight: 700;
+`;
+
 
 const SuggestionsList = styled.ul`
   position: absolute;
@@ -321,18 +333,23 @@ export function PropertyAdForm() {
             onChange={(event) => handleAreaChange(event.target.value)}
           />
 
-          {isLoadingAreas && <FieldHint>Loading area suggestions...</FieldHint>}
+          <FieldMessageArea>
+            {isLoadingAreas && <FieldHint>Loading area suggestions...</FieldHint>}
 
-          {areaError && <FieldHint>{areaError}</FieldHint>}
+            {!isLoadingAreas && areaError && <FieldHint>{areaError}</FieldHint>}
 
-
-          {!isLoadingAreas &&
-            !areaError &&
-            !selectedArea &&
-            debouncedAreaInput.trim().length >= 3 &&
-            suggestions.length === 0 && (
-              <FieldHint>No area suggestions found.</FieldHint>
+            {!isLoadingAreas && !areaError && selectedArea && (
+              <SelectedAreaHint>Selected area: {selectedArea.label}</SelectedAreaHint>
             )}
+
+            {!isLoadingAreas &&
+              !areaError &&
+              !selectedArea &&
+              debouncedAreaInput.trim().length >= 3 &&
+              suggestions.length === 0 && (
+                <FieldHint>No area suggestions found.</FieldHint>
+              )}
+          </FieldMessageArea>
 
           {suggestions.length > 0 && (
             <SuggestionsList
@@ -365,6 +382,7 @@ export function PropertyAdForm() {
             placeholder="Amount"
             inputMode="numeric"
           />
+          <FieldMessageArea />
         </Field>
 
         <Field $full>
