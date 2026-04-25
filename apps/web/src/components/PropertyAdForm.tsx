@@ -325,9 +325,6 @@ export function PropertyAdForm() {
 
           {areaError && <FieldHint>{areaError}</FieldHint>}
 
-          {selectedArea && (
-            <SelectedAreaHint>Selected area: {selectedArea.label}</SelectedAreaHint>
-          )}
 
           {!isLoadingAreas &&
             !areaError &&
