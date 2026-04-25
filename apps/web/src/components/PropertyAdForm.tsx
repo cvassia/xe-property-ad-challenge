@@ -93,16 +93,15 @@ const FieldHint = styled.span`
   font-size: 0.85rem;
 `;
 
+const FieldErrorHint = styled.span`
+  color: #b42318;
+  font-size: 0.85rem;
+`;
+
 const FieldMessageArea = styled.div`
   min-height: 20px;
   display: flex;
   align-items: center;
-`;
-
-const SelectedAreaHint = styled.span`
-  color: #24563b;
-  font-size: 0.85rem;
-  font-weight: 700;
 `;
 
 
@@ -261,6 +260,8 @@ export function PropertyAdForm() {
         }
 
         setSuggestions(result.data ?? []);
+        setActiveSuggestionIndex(-1);
+
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
@@ -342,7 +343,7 @@ export function PropertyAdForm() {
       }
 
       if (!autocompleteRef.current.contains(event.target as Node)) {
-        setSuggestions(result.data ?? []);
+        setSuggestions([]);
         setActiveSuggestionIndex(-1);
       }
     }
@@ -445,18 +446,15 @@ export function PropertyAdForm() {
           <FieldMessageArea>
             {isLoadingAreas && <FieldHint>Loading area suggestions...</FieldHint>}
 
-            {!isLoadingAreas && areaError && <FieldHint>{areaError}</FieldHint>}
+            {!isLoadingAreas && areaError && <FieldErrorHint>{areaError}</FieldErrorHint>}
 
-            {!isLoadingAreas && !areaError && selectedArea && (
-              <SelectedAreaHint>Selected area: {selectedArea.label}</SelectedAreaHint>
-            )}
 
             {!isLoadingAreas &&
               !areaError &&
               !selectedArea &&
               debouncedAreaInput.trim().length >= 3 &&
               suggestions.length === 0 && (
-                <FieldHint>No area suggestions found.</FieldHint>
+                <FieldErrorHint>No area suggestions found.</FieldErrorHint>
               )}
           </FieldMessageArea>
         </FieldGroup>
