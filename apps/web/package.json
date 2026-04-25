@@ -12,15 +12,19 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "styled-components": "^6.4.1",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
-    "vitest": "latest",
-    "@testing-library/react": "latest",
     "@testing-library/jest-dom": "latest",
-    "jsdom": "latest"
+    "@testing-library/react": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/styled-components": "^5.1.36",
+    "jsdom": "latest",
+    "vitest": "latest"
   }
 }
