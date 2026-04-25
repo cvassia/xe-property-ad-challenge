@@ -11,12 +11,15 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@vitejs/plugin-react": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-hook-form": "^7.73.1",
     "styled-components": "^6.4.1",
     "typescript": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "latest",

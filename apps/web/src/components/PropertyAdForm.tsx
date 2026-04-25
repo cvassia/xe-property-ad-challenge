@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import styled from "styled-components";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+
+import {
+  propertyAdSchema,
+  type PropertyAdFormValues
+} from "../validation/propertyAdSchema";
 
 type AreaSuggestion = {
   placeId: string;
@@ -218,8 +225,25 @@ export function PropertyAdForm() {
   const [isLoadingAreas, setIsLoadingAreas] = useState(false);
   const [areaError, setAreaError] = useState("");
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const [areaValidationError, setAreaValidationError] = useState("");
+
 
   const autocompleteRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<PropertyAdFormValues>({
+    resolver: yupResolver(propertyAdSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      title: "",
+      type: "",
+      price: undefined,
+      description: ""
+    }
+  });
 
   const debouncedAreaInput = useDebouncedValue(areaInput, 300);
 
@@ -355,24 +379,60 @@ export function PropertyAdForm() {
     };
   }, []);
 
+  function onSubmit(values: PropertyAdFormValues) {
+    if (!selectedArea) {
+      if (areaInput.trim().length >= 3 && suggestions.length === 0) {
+        setAreaValidationError("");
+        return;
+      }
+
+      setAreaValidationError("Please select an area from the suggestions.");
+      return;
+    }
+
+    const payload = {
+      ...values,
+      area: {
+        placeId: selectedArea.placeId,
+        mainText: selectedArea.mainText,
+        secondaryText: selectedArea.secondaryText
+      }
+    };
+
+    console.info("Validated property ad payload:", payload);
+  }
+
   return (
-    <Form aria-label="Create property classified form">
+    <Form
+      aria-label="Create property classified form"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+    >
       <FormGrid>
         <Field>
           <FieldLabel>Title</FieldLabel>
           <TextInput
-            name="title"
             type="text"
             maxLength={155}
             placeholder="Classified title up to 155 characters"
             autoComplete="off"
+            aria-invalid={Boolean(errors.title)}
+            {...register("title")}
           />
-          <FieldMessageArea />
+          <FieldMessageArea>
+            {errors.title && (
+              <FieldErrorHint>{errors.title.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
         </Field>
 
         <Field>
           <FieldLabel>Type</FieldLabel>
-          <SelectInput name="type" defaultValue="">
+          <SelectInput
+            defaultValue=""
+            aria-invalid={Boolean(errors.type)}
+            {...register("type")}
+          >
             {propertyTypes.map((type) => (
               <option
                 key={type.value}
@@ -383,7 +443,11 @@ export function PropertyAdForm() {
               </option>
             ))}
           </SelectInput>
-          <FieldMessageArea />
+          <FieldMessageArea>
+            {errors.type && (
+              <FieldErrorHint>{errors.type.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
         </Field>
 
         <FieldGroup>
@@ -409,6 +473,7 @@ export function PropertyAdForm() {
               autoComplete="off"
               onChange={(event) => handleAreaChange(event.target.value)}
               onKeyDown={handleAreaKeyDown}
+              aria-invalid={Boolean(areaValidationError)}
             />
 
             {suggestions.length > 0 && (
@@ -444,37 +509,51 @@ export function PropertyAdForm() {
           </AutocompleteWrapper>
 
           <FieldMessageArea>
-            {isLoadingAreas && <FieldHint>Loading area suggestions...</FieldHint>}
-
-            {!isLoadingAreas && areaError && <FieldErrorHint>{areaError}</FieldErrorHint>}
-
-
-            {!isLoadingAreas &&
-              !areaError &&
-              !selectedArea &&
+            {isLoadingAreas ? (
+              <FieldHint>Loading area suggestions...</FieldHint>
+            ) : areaError ? (
+              <FieldErrorHint>{areaError}</FieldErrorHint>
+            ) : !selectedArea &&
               debouncedAreaInput.trim().length >= 3 &&
-              suggestions.length === 0 && (
-                <FieldErrorHint>No area suggestions found.</FieldErrorHint>
-              )}
+              suggestions.length === 0 ? (
+              <FieldErrorHint>No area suggestions found.</FieldErrorHint>
+            ) : areaValidationError ? (
+              <FieldErrorHint>{areaValidationError}</FieldErrorHint>
+            ) : null}
           </FieldMessageArea>
         </FieldGroup>
 
         <Field>
           <FieldLabel>Price in Euros</FieldLabel>
           <TextInput
-            name="price"
             type="number"
             min="0"
             step="1"
             placeholder="Amount"
             inputMode="numeric"
+            aria-invalid={Boolean(errors.price)}
+            {...register("price", { valueAsNumber: true })}
           />
-          <FieldMessageArea />
+          <FieldMessageArea>
+            {errors.description && (
+              <FieldErrorHint>{errors.description.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
         </Field>
 
         <Field $full>
           <FieldLabel>Extra description</FieldLabel>
-          <TextArea name="description" rows={5} placeholder="Type here" />
+          <TextArea
+            rows={5}
+            placeholder="Type here"
+            aria-invalid={Boolean(errors.description)}
+            {...register("description")}
+          />
+          <FieldMessageArea>
+            {errors.description && (
+              <FieldErrorHint>{errors.description.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
         </Field>
       </FormGrid>
 
