@@ -1,4 +1,6 @@
+import { Route, Routes } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
+import { AdDetailsPage } from "./components/AdDetailsPage";
 import { PropertyAdForm } from "./components/PropertyAdForm";
 
 const GlobalStyle = createGlobalStyle`
@@ -126,31 +128,42 @@ const StatusPill = styled.div`
   }
 `;
 
+function CreateAdPage() {
+  return (
+    <>
+      <HeroCard>
+        <Eyebrow>XE Web Developer Challenge</Eyebrow>
+
+        <HeroContent>
+          <div>
+            <Heading>Create a property ad</Heading>
+            <HeroDescription>
+              A responsive real estate ad form focused on area autocomplete,
+              validation, persistence, caching, and tests.
+            </HeroDescription>
+          </div>
+
+          <StatusPill>Property classified form</StatusPill>
+        </HeroContent>
+      </HeroCard>
+
+      <FormCard>
+        <PropertyAdForm />
+      </FormCard>
+    </>
+  );
+}
+
 export function App() {
   return (
     <>
       <GlobalStyle />
 
       <AppShell>
-        <HeroCard>
-          <Eyebrow>XE Web Developer Challenge</Eyebrow>
-
-          <HeroContent>
-            <div>
-              <Heading>Create a property ad</Heading>
-              <HeroDescription>
-                A responsive real estate ad form focused on area autocomplete,
-                validation, persistence, caching, and tests.
-              </HeroDescription>
-            </div>
-
-            <StatusPill>Property classified form</StatusPill>
-          </HeroContent>
-        </HeroCard>
-
-        <FormCard>
-          <PropertyAdForm />
-        </FormCard>
+        <Routes>
+          <Route path="/" element={<CreateAdPage />} />
+          <Route path="/ads/:adId" element={<AdDetailsPage />} />
+        </Routes>
       </AppShell>
     </>
   );

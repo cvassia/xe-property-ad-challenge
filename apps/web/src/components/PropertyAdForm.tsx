@@ -3,6 +3,7 @@ import type React from "react";
 import styled from "styled-components";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 
 import {
   propertyAdSchema,
@@ -94,6 +95,9 @@ const inputStyles = `
   &:focus {
     border-color: #3464d4;
     box-shadow: 0 0 0 4px rgb(52 100 212 / 14%);
+  }
+      &[aria-invalid="true"] {
+    border-color: #b42318;
   }
 `;
 
@@ -334,6 +338,7 @@ export function PropertyAdForm() {
   function handleAreaChange(value: string) {
     setAreaInput(value);
     setSelectedArea(null);
+    setAreaValidationError("");
     setActiveSuggestionIndex(-1);
   }
 
@@ -342,6 +347,7 @@ export function PropertyAdForm() {
     setAreaInput(area.label);
     setSuggestions([]);
     setAreaError("");
+    setAreaValidationError("");
     setActiveSuggestionIndex(-1);
   }
 
@@ -582,8 +588,8 @@ export function PropertyAdForm() {
             {...register("price", { valueAsNumber: true })}
           />
           <FieldMessageArea>
-            {errors.description && (
-              <FieldErrorHint>{errors.description.message}</FieldErrorHint>
+            {errors.price && (
+              <FieldErrorHint>{errors.price.message}</FieldErrorHint>
             )}
           </FieldMessageArea>
         </Field>
@@ -606,7 +612,7 @@ export function PropertyAdForm() {
       {createdAd && (
         <SubmitMessage $variant="success" role="status">
           <strong>Property ad created successfully.</strong>
-          Your property ad has been saved.
+          <Link to={`/ads/${createdAd.id}`}>View created ad</Link>
         </SubmitMessage>
       )}
 
