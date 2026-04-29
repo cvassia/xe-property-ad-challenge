@@ -12,9 +12,22 @@ model Ad {
   type              String
   price             Int
   description       String?
+
+  propertyCategory  String   @default("apartment")
+  apartmentType     String?
+  squareMeters      Int      @default(1)
+  energyClass       String   @default("unknown")
+  floor             String?
+  bedrooms          Int?
+  bathrooms         Int?
+  constructionYear  Int?
+  renovationYear    Int?
+  condition         String?
+
   areaPlaceId       String
   areaMainText      String
   areaSecondaryText String
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }

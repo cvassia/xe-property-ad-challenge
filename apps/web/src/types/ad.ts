@@ -4,11 +4,24 @@ export type PropertyAd = {
     type: string;
     price: number;
     description: string | null;
+
+    propertyCategory: string;
+    apartmentType: string | null;
+    squareMeters: number;
+    energyClass: string;
+    floor: string | null;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    constructionYear: number | null;
+    renovationYear: number | null;
+    condition: string | null;
+
     area: {
         placeId: string;
         mainText: string;
         secondaryText: string;
     };
+
     createdAt: string;
     updatedAt?: string;
 };

@@ -68,6 +68,7 @@ const MainCard = styled.article`
   border-radius: 24px;
   background: #ffffff;
   box-shadow: 0 20px 60px rgb(18 38 63 / 8%);
+  padding: 20px,
 `;
 
 const ListingHero = styled.div`
@@ -165,7 +166,7 @@ const DetailsGrid = styled.dl`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin: 0;
+  margin: 15px;
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
@@ -329,170 +330,236 @@ const Message = styled.div<{ $variant?: "error" }>`
 `;
 
 function formatPrice(price: number) {
-    return new Intl.NumberFormat("el-GR", {
-        style: "currency",
-        currency: "EUR",
-        maximumFractionDigits: 0
-    }).format(price);
+  return new Intl.NumberFormat("el-GR", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0
+  }).format(price);
 }
 
 function formatPropertyType(type: string) {
-    const labels: Record<string, string> = {
-        rent: "Rent",
-        buy: "Buy",
-        exchange: "Exchange",
-        donation: "Donation"
-    };
+  const labels: Record<string, string> = {
+    rent: "Rent",
+    buy: "Buy",
+    auction: "Auction",
+    exchange: "Exchange",
+  };
 
-    return labels[type] ?? type;
+  return labels[type] ?? type;
 }
 
 function formatDate(value: string) {
-    return new Intl.DateTimeFormat("en-GB", {
-        dateStyle: "medium",
-        timeStyle: "short"
-    }).format(new Date(value));
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value));
+}
+
+function formatOptionalValue(value: string | number | null | undefined) {
+  return value === null || value === undefined || value === ""
+    ? "Not provided"
+    : value;
+}
+
+function formatCondition(value: string | null | undefined) {
+  const labels: Record<string, string> = {
+    renovated: "Renovated",
+    needs_renovation: "Needs renovation",
+    under_construction: "Under construction",
+    unfinished: "Unfinished"
+  };
+
+  if (!value) {
+    return "Not provided";
+  }
+
+  return labels[value] ?? value;
+}
+
+function formatPropertyCategory(value: string) {
+  const labels: Record<string, string> = {
+    apartment: "Apartment",
+    detached_house: "Detached house",
+    maisonette: "Maisonette",
+    studio: "Studio",
+    loft: "Loft"
+  };
+
+  return labels[value] ?? value;
 }
 
 export function AdDetailsPage() {
-    const { adId } = useParams<{ adId: string }>();
+  const { adId } = useParams<{ adId: string }>();
 
-    const [ad, setAd] = useState<PropertyAd | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState("");
+  const [ad, setAd] = useState<PropertyAd | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-        async function loadAd() {
-            if (!adId) {
-                setError("Could not load this property ad.");
-                setIsLoading(false);
-                return;
-            }
+    async function loadAd() {
+      if (!adId) {
+        setError("Could not load this property ad.");
+        setIsLoading(false);
+        return;
+      }
 
-            setIsLoading(true);
-            setError("");
+      setIsLoading(true);
+      setError("");
 
-            try {
-                const loadedAd = await getPropertyAd(adId);
+      try {
+        const loadedAd = await getPropertyAd(adId);
 
-                if (isMounted) {
-                    setAd(loadedAd);
-                }
-            } catch {
-                if (isMounted) {
-                    setError("Could not load this property ad.");
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
+        if (isMounted) {
+          setAd(loadedAd);
         }
+      } catch {
+        if (isMounted) {
+          setError("Could not load this property ad.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
 
-        void loadAd();
+    void loadAd();
 
-        return () => {
-            isMounted = false;
-        };
-    }, [adId]);
+    return () => {
+      isMounted = false;
+    };
+  }, [adId]);
 
-    return (
-        <Page>
-            <TopBar>
-                <BrandMark to="/">
-                    xe<span>.gr</span>
-                </BrandMark>
-                <BackLink to="/">← Create another property ad</BackLink>
-            </TopBar>
+  return (
+    <Page>
+      <TopBar>
+        <BrandMark to="/">
+          xe<span>.gr</span>
+        </BrandMark>
+        <BackLink to="/">← Create another property ad</BackLink>
+      </TopBar>
 
-            {isLoading && <Message>Loading property ad...</Message>}
+      {isLoading && <Message>Loading property ad...</Message>}
 
-            {!isLoading && error && <Message $variant="error">{error}</Message>}
+      {!isLoading && error && <Message $variant="error">{error}</Message>}
 
-            {!isLoading && !error && ad && (
-                <Layout>
-                    <MainCard>
-                        <ListingHero>
-                            <Breadcrumb aria-label="Breadcrumb">
-                                <Link to="/">Ακίνητα</Link> / {formatPropertyType(ad.type)}
-                            </Breadcrumb>
+      {!isLoading && !error && ad && (
+        <Layout>
+          <MainCard>
+            <ListingHero>
+              <Breadcrumb aria-label="Breadcrumb">
+                <Link to="/">Property</Link> / {formatPropertyType(ad.type)}
+              </Breadcrumb>
 
-                            <CategoryBadge>Property classified</CategoryBadge>
+              <Title>{ad.title}</Title>
 
-                            <Title>{ad.title}</Title>
+              <LocationText>
+                📍 {ad.area.mainText}, {ad.area.secondaryText}
+              </LocationText>
 
-                            <LocationText>
-                                📍 {ad.area.mainText}, {ad.area.secondaryText}
-                            </LocationText>
+              <Price>{formatPrice(ad.price)}</Price>
+            </ListingHero>
 
-                            <Price>{formatPrice(ad.price)}</Price>
-                        </ListingHero>
+            <DetailsGrid>
+              <DetailItem>
+                <dt>Type</dt>
+                <dd>{formatPropertyType(ad.type)}</dd>
+              </DetailItem>
 
-                        <Content>
-                            <Section>
-                                <h2>Basic information</h2>
-                                <DetailsGrid>
-                                    <DetailItem>
-                                        <dt>Type</dt>
-                                        <dd>{formatPropertyType(ad.type)}</dd>
-                                    </DetailItem>
+              <DetailItem>
+                <dt>Category</dt>
+                <dd>{formatPropertyCategory(ad.propertyCategory)}</dd>
+              </DetailItem>
 
-                                    <DetailItem>
-                                        <dt>Area</dt>
-                                        <dd>
-                                            {ad.area.mainText}, {ad.area.secondaryText}
-                                        </dd>
-                                    </DetailItem>
+              <DetailItem>
+                <dt>Size</dt>
+                <dd>{ad.squareMeters} m²</dd>
+              </DetailItem>
 
-                                    <DetailItem>
-                                        <dt>Created</dt>
-                                        <dd>{formatDate(ad.createdAt)}</dd>
-                                    </DetailItem>
-                                </DetailsGrid>
-                            </Section>
+              <DetailItem>
+                <dt>Area</dt>
+                <dd>
+                  {ad.area.mainText}, {ad.area.secondaryText}
+                </dd>
+              </DetailItem>
 
-                            <Section>
-                                <h2>Description</h2>
-                                <p>{ad.description || "No extra description was provided."}</p>
-                            </Section>
-                        </Content>
-                    </MainCard>
+              <DetailItem>
+                <dt>Energy class</dt>
+                <dd>{ad.energyClass}</dd>
+              </DetailItem>
 
-                    <Sidebar>
+              <DetailItem>
+                <dt>Floor</dt>
+                <dd>{formatOptionalValue(ad.floor)}</dd>
+              </DetailItem>
+
+              <DetailItem>
+                <dt>Bedrooms</dt>
+                <dd>{formatOptionalValue(ad.bedrooms)}</dd>
+              </DetailItem>
+
+              <DetailItem>
+                <dt>Bathrooms</dt>
+                <dd>{formatOptionalValue(ad.bathrooms)}</dd>
+              </DetailItem>
+
+              <DetailItem>
+                <dt>Condition</dt>
+                <dd>{formatCondition(ad.condition)}</dd>
+              </DetailItem>
+
+              <DetailItem>
+                <dt>Construction year</dt>
+                <dd>{formatOptionalValue(ad.constructionYear)}</dd>
+              </DetailItem>
+
+              <DetailItem>
+                <dt>Renovation year</dt>
+                <dd>{formatOptionalValue(ad.renovationYear)}</dd>
+              </DetailItem>
+
+              <DetailItem>
+                <dt>Created</dt>
+                <dd>{formatDate(ad.createdAt)}</dd>
+              </DetailItem>
+            </DetailsGrid>
+          </MainCard>
+
+          <Sidebar>
 
 
-                        <MapCard aria-label="Property location">
-                            <MapPreview>
-                                <MapRoad />
-                                <MapRoad />
-                                <MapRoad />
-                                <MapPin aria-hidden="true">📍</MapPin>
-                            </MapPreview>
+            <MapCard aria-label="Property location">
+              <MapPreview>
+                <MapRoad />
+                <MapRoad />
+                <MapRoad />
+                <MapPin aria-hidden="true">📍</MapPin>
+              </MapPreview>
 
-                            <MapContent>
-                                <h2>Location</h2>
-                                <p>
-                                    The property is listed in {ad.area.mainText}, {ad.area.secondaryText}.
-                                </p>
+              <MapContent>
+                <h2>Location</h2>
+                <p>
+                  The property is listed in {ad.area.mainText}, {ad.area.secondaryText}.
+                </p>
 
-                                <LocationMeta>
-                                    <div>
-                                        <dt>Area</dt>
-                                        <dd>{ad.area.mainText}</dd>
-                                    </div>
+                <LocationMeta>
+                  <div>
+                    <dt>Area</dt>
+                    <dd>{ad.area.mainText}</dd>
+                  </div>
 
-                                    <div>
-                                        <dt>Region</dt>
-                                        <dd>{ad.area.secondaryText}</dd>
-                                    </div>
-                                </LocationMeta>
-                            </MapContent>
-                        </MapCard>
-                    </Sidebar>
-                </Layout>
-            )}
-        </Page>
-    );
+                  <div>
+                    <dt>Region</dt>
+                    <dd>{ad.area.secondaryText}</dd>
+                  </div>
+                </LocationMeta>
+              </MapContent>
+            </MapCard>
+          </Sidebar>
+        </Layout>
+      )}
+    </Page>
+  );
 }
