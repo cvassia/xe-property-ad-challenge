@@ -16,6 +16,7 @@ export type PropertyAdFormValues = {
     constructionYear?: number;
     renovationYear?: number;
     condition?: string;
+    contactPhone: string;
 };
 
 const optionalPositiveInteger = yup
@@ -81,5 +82,14 @@ export const propertyAdSchema: yup.ObjectSchema<PropertyAdFormValues> =
 
         renovationYear: optionalPositiveInteger,
 
-        condition: yup.string().trim().optional()
+        condition: yup.string().trim().optional(),
+
+        contactPhone: yup
+            .string()
+            .trim()
+            .required("Contact phone is required.")
+            .matches(
+                /^[+0-9\s()-]{8,20}$/,
+                "Contact phone must be a valid phone number."
+            )
     });

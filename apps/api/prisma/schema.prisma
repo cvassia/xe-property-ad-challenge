@@ -23,6 +23,7 @@ model Ad {
   constructionYear  Int?
   renovationYear    Int?
   condition         String?
+  contactPhone String @default("")
 
   areaPlaceId       String
   areaMainText      String

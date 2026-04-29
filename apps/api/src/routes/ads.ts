@@ -22,6 +22,7 @@ function mapAdToResponse(ad: {
     constructionYear: number | null;
     renovationYear: number | null;
     condition: string | null;
+    contactPhone: string;
 
     areaPlaceId: string;
     areaMainText: string;
@@ -47,6 +48,7 @@ function mapAdToResponse(ad: {
         constructionYear: ad.constructionYear,
         renovationYear: ad.renovationYear,
         condition: ad.condition,
+        contactPhone: ad.contactPhone,
 
         area: {
             placeId: ad.areaPlaceId,
@@ -83,6 +85,7 @@ adsRouter.post("/", async (request, response) => {
                 constructionYear: input.constructionYear ?? null,
                 renovationYear: input.renovationYear ?? null,
                 condition: input.condition || null,
+                contactPhone: input.contactPhone,
 
                 areaPlaceId: input.area.placeId,
                 areaMainText: input.area.mainText,

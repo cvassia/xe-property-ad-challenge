@@ -173,13 +173,14 @@ const DetailsGrid = styled.dl`
   }
 `;
 
-const DetailItem = styled.div`
+const DetailItem = styled.div<{ $full?: boolean }>`
   display: grid;
   gap: 6px;
   padding: 16px;
   border: 1px solid #e2e8f0;
   border-radius: 18px;
   background: #f8fbff;
+  grid-column: ${({ $full }) => ($full ? "1 / -1" : "auto")};
 
   dt {
     color: #667085;
@@ -194,6 +195,106 @@ const DetailItem = styled.div`
     color: #172033;
     font-size: 1rem;
     font-weight: 800;
+  }
+`;
+
+const ContactCard = styled.section`
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid #dce4ef;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgb(18 38 63 / 8%);
+
+  h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 1.05rem;
+  }
+
+  p {
+    margin: 0;
+    color: #5c667a;
+    line-height: 1.6;
+  }
+`;
+
+const ShowPhoneButton = styled.button`
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  padding: 0 16px;
+  color: #ffffff;
+  background: #3464d4;
+  font-weight: 900;
+
+  &:hover {
+    background: #284fad;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(17 24 39 / 55%);
+`;
+
+const ModalCard = styled.div`
+  width: min(100%, 420px);
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgb(17 24 39 / 35%);
+
+  h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 1.3rem;
+  }
+
+  p {
+    margin: 0;
+    color: #5c667a;
+    line-height: 1.6;
+  }
+`;
+
+const PhoneNumber = styled.a`
+  display: block;
+  padding: 16px;
+  border: 1px solid #dce4ef;
+  border-radius: 16px;
+  color: #1f4fbf;
+  background: #f8fbff;
+  font-size: 1.35rem;
+  font-weight: 950;
+  text-align: center;
+  text-decoration: none;
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const CloseButton = styled.button`
+  min-height: 44px;
+  border: 1px solid #cfd8e6;
+  border-radius: 14px;
+  padding: 0 16px;
+  color: #172033;
+  background: #ffffff;
+  font-weight: 800;
+
+  &:hover {
+    background: #f8fbff;
   }
 `;
 
@@ -391,6 +492,7 @@ function formatPropertyCategory(value: string) {
 export function AdDetailsPage() {
   const { adId } = useParams<{ adId: string }>();
 
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [ad, setAd] = useState<PropertyAd | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -524,11 +626,23 @@ export function AdDetailsPage() {
                 <dt>Created</dt>
                 <dd>{formatDate(ad.createdAt)}</dd>
               </DetailItem>
+
+              <DetailItem $full>
+                <dt>Description</dt>
+                <dd>{ad.description || "No extra description was provided."}</dd>
+              </DetailItem>
             </DetailsGrid>
           </MainCard>
 
           <Sidebar>
+            <ContactCard aria-label="Contact advertiser">
+              <h2>Interested in this property?</h2>
+              <p>Contact the advertiser directly to ask for more information.</p>
 
+              <ShowPhoneButton type="button" onClick={() => setIsPhoneModalOpen(true)}>
+                Show phone
+              </ShowPhoneButton>
+            </ContactCard>
 
             <MapCard aria-label="Property location">
               <MapPreview>
@@ -559,6 +673,32 @@ export function AdDetailsPage() {
             </MapCard>
           </Sidebar>
         </Layout>
+      )}
+      {isPhoneModalOpen && ad && (
+        <ModalOverlay
+          role="presentation"
+          onClick={() => setIsPhoneModalOpen(false)}
+        >
+          <ModalCard
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contact-phone-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="contact-phone-title">Contact phone</h2>
+            <p>Use this phone number to contact the advertiser about this property.</p>
+
+            <PhoneNumber href={`tel:${ad.contactPhone}`}>
+              {ad.contactPhone}
+            </PhoneNumber>
+
+            <ModalActions>
+              <CloseButton type="button" onClick={() => setIsPhoneModalOpen(false)}>
+                Close
+              </CloseButton>
+            </ModalActions>
+          </ModalCard>
+        </ModalOverlay>
       )}
     </Page>
   );

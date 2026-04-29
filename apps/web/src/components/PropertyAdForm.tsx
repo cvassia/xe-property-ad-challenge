@@ -383,7 +383,8 @@ export function PropertyAdForm() {
       bathrooms: undefined,
       constructionYear: undefined,
       renovationYear: undefined,
-      condition: ""
+      condition: "",
+      contactPhone: ""
     }
   });
 
@@ -684,8 +685,6 @@ export function PropertyAdForm() {
               debouncedAreaInput.trim().length >= 3 &&
               suggestions.length === 0 ? (
               <FieldErrorHint>No area suggestions found.</FieldErrorHint>
-            ) : selectedArea ? (
-              <FieldSuccessHint>Selected area: {selectedArea.label}</FieldSuccessHint>
             ) : null}
           </FieldMessageArea>
         </FieldGroup>
@@ -704,6 +703,22 @@ export function PropertyAdForm() {
           <FieldMessageArea>
             {errors.price && (
               <FieldErrorHint>{errors.price.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Contact phone</FieldLabel>
+          <TextInput
+            type="tel"
+            placeholder="e.g. +30 691 234 5678"
+            autoComplete="tel"
+            aria-invalid={Boolean(errors.contactPhone)}
+            {...register("contactPhone")}
+          />
+          <FieldMessageArea>
+            {errors.contactPhone && (
+              <FieldErrorHint>{errors.contactPhone.message}</FieldErrorHint>
             )}
           </FieldMessageArea>
         </Field>

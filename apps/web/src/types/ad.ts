@@ -15,6 +15,7 @@ export type PropertyAd = {
     constructionYear: number | null;
     renovationYear: number | null;
     condition: string | null;
+    contactPhone: string;
 
     area: {
         placeId: string;

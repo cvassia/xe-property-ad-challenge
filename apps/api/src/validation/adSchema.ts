@@ -16,6 +16,7 @@ export type CreateAdInput = {
     constructionYear?: number;
     renovationYear?: number;
     condition?: string;
+    contactPhone: string;
 
     area: {
         placeId: string;
@@ -87,6 +88,15 @@ export const createAdSchema: yup.ObjectSchema<CreateAdInput> = yup.object({
     renovationYear: optionalPositiveInteger,
 
     condition: yup.string().trim().optional(),
+
+    contactPhone: yup
+        .string()
+        .trim()
+        .required("Contact phone is required.")
+        .matches(
+            /^[+0-9\s()-]{8,20}$/,
+            "Contact phone must be a valid phone number."
+        ),
 
     area: yup
         .object({
