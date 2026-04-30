@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
+import { uploadPropertyAdMedia } from "../api/ads";
 import {
   propertyAdSchema,
   type PropertyAdFormValues
@@ -41,8 +42,73 @@ const propertyTypes = [
   { value: "", label: "Select type" },
   { value: "rent", label: "Rent" },
   { value: "buy", label: "Buy" },
+  { value: "auction", label: "Auction" },
   { value: "exchange", label: "Exchange" },
-  { value: "donation", label: "Donation" }
+];
+
+const propertyCategories = [
+  { value: "", label: "Select property category" },
+  { value: "apartment", label: "Apartment" },
+  { value: "detached_house", label: "Detached house" },
+  { value: "maisonette", label: "Maisonette" },
+  { value: "commercial_building", label: "Commercial building" },
+  { value: "plot", label: "Plot" },
+  { value: "land", label: "Land" },
+  { value: "shop", label: "Shop" },
+  { value: "apartment_building", label: "Apartment building" },
+  { value: "office", label: "Office" },
+  { value: "hall", label: "Hall" },
+  { value: "warehouse", label: "Warehouse" },
+  { value: "industrial_space", label: "Industrial space" },
+  { value: "craft_space", label: "Craft space" },
+  { value: "parking", label: "Parking" },
+  { value: "villa", label: "Villa" },
+  { value: "island", label: "Island" },
+  { value: "air_residence", label: "Air residence" },
+  { value: "residential_complex", label: "Residential complex" },
+  { value: "bungalow", label: "Bungalow" },
+  { value: "farm_ranch", label: "Farm / ranch" }
+];
+
+const apartmentTypes = [
+  { value: "", label: "Select apartment type" },
+  { value: "standard", label: "Standard apartment" },
+  { value: "studio", label: "Studio" },
+  { value: "loft", label: "Loft" },
+  { value: "penthouse", label: "Penthouse" }
+];
+
+const energyClasses = [
+  { value: "", label: "Select energy class" },
+  { value: "A+", label: "A+" },
+  { value: "A", label: "A" },
+  { value: "B+", label: "B+" },
+  { value: "B", label: "B" },
+  { value: "C", label: "C" },
+  { value: "D", label: "D" },
+  { value: "E", label: "E" },
+  { value: "F", label: "F" },
+  { value: "G", label: "G" },
+  { value: "excluded", label: "Excluded" }
+];
+
+const floorOptions = [
+  { value: "", label: "Select floor" },
+  { value: "basement", label: "Basement" },
+  { value: "ground", label: "Ground floor" },
+  { value: "1", label: "1st floor" },
+  { value: "2", label: "2nd floor" },
+  { value: "3", label: "3rd floor" },
+  { value: "4", label: "4th floor" },
+  { value: "5+", label: "5th floor or higher" }
+];
+
+const conditionOptions = [
+  { value: "", label: "Select condition" },
+  { value: "renovated", label: "Renovated" },
+  { value: "needs_renovation", label: "Needs renovation" },
+  { value: "under_construction", label: "Under construction" },
+  { value: "unfinished", label: "Unfinished" }
 ];
 
 const Form = styled.form`
@@ -57,6 +123,23 @@ const FormGrid = styled.div`
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
+  }
+`;
+
+const SectionTitle = styled.div`
+  grid-column: 1 / -1;
+  padding-top: 8px;
+
+  h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 1.15rem;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: #667085;
+    font-size: 0.9rem;
   }
 `;
 
@@ -96,7 +179,8 @@ const inputStyles = `
     border-color: #3464d4;
     box-shadow: 0 0 0 4px rgb(52 100 212 / 14%);
   }
-      &[aria-invalid="true"] {
+
+  &[aria-invalid="true"] {
     border-color: #b42318;
   }
 `;
@@ -110,7 +194,18 @@ const TextInput = styled.input`
 const SelectInput = styled.select`
   ${inputStyles}
   min-height: 52px;
-  padding: 0 14px;
+  padding: 0 44px 0 14px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #4d5a70 50%),
+    linear-gradient(135deg, #4d5a70 50%, transparent 50%);
+  background-position:
+    calc(100% - 26px) 50%,
+    calc(100% - 21px) 50%;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
 `;
 
 const TextArea = styled.textarea`
@@ -119,9 +214,34 @@ const TextArea = styled.textarea`
   padding: 14px;
 `;
 
+const FileInput = styled.input`
+  ${inputStyles}
+  min-height: 52px;
+  padding: 13px 14px;
+`;
+
+const MediaPreviewList = styled.ul`
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+const MediaPreviewItem = styled.li`
+  color: #4d5a70;
+  font-size: 0.9rem;
+`;
+
 const FieldHint = styled.span`
   color: #667085;
   font-size: 0.85rem;
+`;
+
+const FieldSuccessHint = styled.span`
+  color: #24563b;
+  font-size: 0.85rem;
+  font-weight: 700;
 `;
 
 const FieldErrorHint = styled.span`
@@ -134,7 +254,6 @@ const FieldMessageArea = styled.div`
   display: flex;
   align-items: center;
 `;
-
 
 const SuggestionsList = styled.ul`
   position: absolute;
@@ -182,7 +301,6 @@ const SuggestionButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-
 const SubmitMessage = styled.div<{ $variant: "success" | "error" }>`
   padding: 16px;
   border-radius: 16px;
@@ -197,6 +315,11 @@ const SubmitMessage = styled.div<{ $variant: "success" | "error" }>`
   strong {
     display: block;
     margin-bottom: 4px;
+  }
+
+  a {
+    color: inherit;
+    font-weight: 800;
   }
 `;
 
@@ -229,7 +352,6 @@ const SubmitButton = styled.button`
   }
 `;
 
-
 function useDebouncedValue(value: string, delayMs: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -256,7 +378,7 @@ export function PropertyAdForm() {
   const [areaValidationError, setAreaValidationError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [createdAd, setCreatedAd] = useState<CreatedAd | null>(null);
-
+  const [selectedMediaFiles, setSelectedMediaFiles] = useState<File[]>([]);
 
   const autocompleteRef = useRef<HTMLDivElement | null>(null);
 
@@ -271,7 +393,19 @@ export function PropertyAdForm() {
       title: "",
       type: "",
       price: undefined,
-      description: ""
+      description: "",
+
+      propertyCategory: "",
+      apartmentType: "",
+      squareMeters: undefined,
+      energyClass: "",
+      floor: "",
+      bedrooms: undefined,
+      bathrooms: undefined,
+      constructionYear: undefined,
+      renovationYear: undefined,
+      condition: "",
+      contactPhone: ""
     }
   });
 
@@ -286,6 +420,7 @@ export function PropertyAdForm() {
       setSuggestions([]);
       setIsLoadingAreas(false);
       setAreaError("");
+      setActiveSuggestionIndex(-1);
       return;
     }
 
@@ -315,7 +450,6 @@ export function PropertyAdForm() {
 
         setSuggestions(result.data ?? []);
         setActiveSuggestionIndex(-1);
-
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
@@ -323,6 +457,7 @@ export function PropertyAdForm() {
 
         setSuggestions([]);
         setAreaError("Could not load area suggestions. Please try again.");
+        setActiveSuggestionIndex(-1);
       } finally {
         setIsLoadingAreas(false);
       }
@@ -334,6 +469,25 @@ export function PropertyAdForm() {
       controller.abort();
     };
   }, [debouncedAreaInput, shouldSearchAreas]);
+
+  useEffect(() => {
+    function handleDocumentMouseDown(event: MouseEvent) {
+      if (!autocompleteRef.current) {
+        return;
+      }
+
+      if (!autocompleteRef.current.contains(event.target as Node)) {
+        setSuggestions([]);
+        setActiveSuggestionIndex(-1);
+      }
+    }
+
+    document.addEventListener("mousedown", handleDocumentMouseDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentMouseDown);
+    };
+  }, []);
 
   function handleAreaChange(value: string) {
     setAreaInput(value);
@@ -392,35 +546,15 @@ export function PropertyAdForm() {
     }
   }
 
-  useEffect(() => {
-    function handleDocumentMouseDown(event: MouseEvent) {
-      if (!autocompleteRef.current) {
-        return;
-      }
-
-      if (!autocompleteRef.current.contains(event.target as Node)) {
-        setSuggestions([]);
-        setActiveSuggestionIndex(-1);
-      }
-    }
-
-    document.addEventListener("mousedown", handleDocumentMouseDown);
-
-    return () => {
-      document.removeEventListener("mousedown", handleDocumentMouseDown);
-    };
-  }, []);
+  function handleMediaChange(files: FileList | null) {
+    setSelectedMediaFiles(files ? Array.from(files) : []);
+  }
 
   async function onSubmit(values: PropertyAdFormValues) {
     setSubmitError("");
     setCreatedAd(null);
 
     if (!selectedArea) {
-      if (areaInput.trim().length >= 3 && suggestions.length === 0) {
-        setAreaValidationError("");
-        return;
-      }
-
       setAreaValidationError("Please select an area from the suggestions.");
       return;
     }
@@ -449,6 +583,10 @@ export function PropertyAdForm() {
         throw new Error(result.error ?? "Could not create property ad.");
       }
 
+      if (selectedMediaFiles.length > 0) {
+        await uploadPropertyAdMedia(result.data.id, selectedMediaFiles);
+      }
+
       setCreatedAd(result.data);
     } catch {
       setSubmitError("Could not create property ad. Please try again.");
@@ -458,7 +596,11 @@ export function PropertyAdForm() {
   return (
     <Form
       aria-label="Create property form"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, () => {
+        if (!selectedArea) {
+          setAreaValidationError("Please select an area from the suggestions.");
+        }
+      })}
       noValidate
     >
       <FormGrid>
@@ -566,12 +708,12 @@ export function PropertyAdForm() {
               <FieldHint>Loading area suggestions...</FieldHint>
             ) : areaError ? (
               <FieldErrorHint>{areaError}</FieldErrorHint>
+            ) : areaValidationError ? (
+              <FieldErrorHint>{areaValidationError}</FieldErrorHint>
             ) : !selectedArea &&
               debouncedAreaInput.trim().length >= 3 &&
               suggestions.length === 0 ? (
               <FieldErrorHint>No area suggestions found.</FieldErrorHint>
-            ) : areaValidationError ? (
-              <FieldErrorHint>{areaValidationError}</FieldErrorHint>
             ) : null}
           </FieldMessageArea>
         </FieldGroup>
@@ -594,6 +736,201 @@ export function PropertyAdForm() {
           </FieldMessageArea>
         </Field>
 
+        <Field>
+          <FieldLabel>Contact phone</FieldLabel>
+          <TextInput
+            type="tel"
+            placeholder="e.g. +30 691 234 5678"
+            autoComplete="tel"
+            aria-invalid={Boolean(errors.contactPhone)}
+            {...register("contactPhone")}
+          />
+          <FieldMessageArea>
+            {errors.contactPhone && (
+              <FieldErrorHint>{errors.contactPhone.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <SectionTitle>
+          <h2>Property details</h2>
+          <p>Add the main characteristics visitors expect in a property listing.</p>
+        </SectionTitle>
+
+        <Field>
+          <FieldLabel>Property category</FieldLabel>
+          <SelectInput
+            defaultValue=""
+            aria-invalid={Boolean(errors.propertyCategory)}
+            {...register("propertyCategory")}
+          >
+            {propertyCategories.map((category) => (
+              <option
+                key={category.value}
+                value={category.value}
+                disabled={category.value === ""}
+              >
+                {category.label}
+              </option>
+            ))}
+          </SelectInput>
+          <FieldMessageArea>
+            {errors.propertyCategory && (
+              <FieldErrorHint>{errors.propertyCategory.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Apartment type</FieldLabel>
+          <SelectInput defaultValue="" {...register("apartmentType")}>
+            {apartmentTypes.map((apartmentType) => (
+              <option key={apartmentType.value} value={apartmentType.value}>
+                {apartmentType.label}
+              </option>
+            ))}
+          </SelectInput>
+          <FieldMessageArea />
+        </Field>
+
+        <Field>
+          <FieldLabel>Square meters</FieldLabel>
+          <TextInput
+            type="number"
+            min="1"
+            step="1"
+            placeholder="e.g. 85"
+            inputMode="numeric"
+            aria-invalid={Boolean(errors.squareMeters)}
+            {...register("squareMeters", { valueAsNumber: true })}
+          />
+          <FieldMessageArea>
+            {errors.squareMeters && (
+              <FieldErrorHint>{errors.squareMeters.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Energy class</FieldLabel>
+          <SelectInput
+            defaultValue=""
+            aria-invalid={Boolean(errors.energyClass)}
+            {...register("energyClass")}
+          >
+            {energyClasses.map((energyClass) => (
+              <option
+                key={energyClass.value}
+                value={energyClass.value}
+                disabled={energyClass.value === ""}
+              >
+                {energyClass.label}
+              </option>
+            ))}
+          </SelectInput>
+          <FieldMessageArea>
+            {errors.energyClass && (
+              <FieldErrorHint>{errors.energyClass.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Floor</FieldLabel>
+          <SelectInput defaultValue="" {...register("floor")}>
+            {floorOptions.map((floor) => (
+              <option key={floor.value} value={floor.value}>
+                {floor.label}
+              </option>
+            ))}
+          </SelectInput>
+          <FieldMessageArea />
+        </Field>
+
+        <Field>
+          <FieldLabel>Bedrooms</FieldLabel>
+          <TextInput
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g. 2"
+            inputMode="numeric"
+            aria-invalid={Boolean(errors.bedrooms)}
+            {...register("bedrooms", { valueAsNumber: true })}
+          />
+          <FieldMessageArea>
+            {errors.bedrooms && (
+              <FieldErrorHint>{errors.bedrooms.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Bathrooms</FieldLabel>
+          <TextInput
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g. 1"
+            inputMode="numeric"
+            aria-invalid={Boolean(errors.bathrooms)}
+            {...register("bathrooms", { valueAsNumber: true })}
+          />
+          <FieldMessageArea>
+            {errors.bathrooms && (
+              <FieldErrorHint>{errors.bathrooms.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Construction year</FieldLabel>
+          <TextInput
+            type="number"
+            min="1800"
+            step="1"
+            placeholder="e.g. 1995"
+            inputMode="numeric"
+            aria-invalid={Boolean(errors.constructionYear)}
+            {...register("constructionYear", { valueAsNumber: true })}
+          />
+          <FieldMessageArea>
+            {errors.constructionYear && (
+              <FieldErrorHint>{errors.constructionYear.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Renovation year</FieldLabel>
+          <TextInput
+            type="number"
+            min="1800"
+            step="1"
+            placeholder="e.g. 2020"
+            inputMode="numeric"
+            aria-invalid={Boolean(errors.renovationYear)}
+            {...register("renovationYear", { valueAsNumber: true })}
+          />
+          <FieldMessageArea>
+            {errors.renovationYear && (
+              <FieldErrorHint>{errors.renovationYear.message}</FieldErrorHint>
+            )}
+          </FieldMessageArea>
+        </Field>
+
+        <Field>
+          <FieldLabel>Property condition</FieldLabel>
+          <SelectInput defaultValue="" {...register("condition")}>
+            {conditionOptions.map((condition) => (
+              <option key={condition.value} value={condition.value}>
+                {condition.label}
+              </option>
+            ))}
+          </SelectInput>
+          <FieldMessageArea />
+        </Field>
+
         <Field $full>
           <FieldLabel>Extra description</FieldLabel>
           <TextArea
@@ -608,7 +945,33 @@ export function PropertyAdForm() {
             )}
           </FieldMessageArea>
         </Field>
+
+        <Field $full>
+          <FieldLabel>Photos or videos</FieldLabel>
+          <FileInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+            multiple
+            onChange={(event) => handleMediaChange(event.target.files)}
+          />
+          <FieldMessageArea>
+            <FieldHint>
+              Upload photos or videos. Supported formats: JPG, PNG, WEBP, MP4, WEBM.
+            </FieldHint>
+          </FieldMessageArea>
+
+          {selectedMediaFiles.length > 0 && (
+            <MediaPreviewList>
+              {selectedMediaFiles.map((file) => (
+                <MediaPreviewItem key={`${file.name}-${file.size}`}>
+                  {file.name}
+                </MediaPreviewItem>
+              ))}
+            </MediaPreviewList>
+          )}
+        </Field>
       </FormGrid>
+
       {createdAd && (
         <SubmitMessage $variant="success" role="status">
           <strong>Property ad created successfully.</strong>

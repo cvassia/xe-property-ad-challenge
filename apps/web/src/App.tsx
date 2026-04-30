@@ -100,7 +100,7 @@ const HeroContent = styled.div`
 const Heading = styled.h1`
   margin: 0;
   color: #111827;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(2rem, 4vw, 2.5rem);
   line-height: 1;
   letter-spacing: -0.05em;
 `;
@@ -121,6 +121,10 @@ const StatusPill = styled.div`
   background: #e6f6ed;
   font-size: 0.9rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+  width: fit-content;
+
 
   @media (max-width: 720px) {
     width: 100%;
@@ -132,18 +136,19 @@ function CreateAdPage() {
   return (
     <>
       <HeroCard>
-        <Eyebrow>XE Web Developer Challenge</Eyebrow>
+        <Eyebrow></Eyebrow>
+        <StatusPill>XE Web Developer Challenge</StatusPill>
+
 
         <HeroContent>
           <div>
             <Heading>Create a property ad</Heading>
             <HeroDescription>
-              A responsive real estate ad form focused on area autocomplete,
-              validation, persistence, caching, and tests.
+              Create a clear property listing with location, price, characteristics, and
+              everything visitors need, to understand your ad.
             </HeroDescription>
           </div>
 
-          <StatusPill>Property classified form</StatusPill>
         </HeroContent>
       </HeroCard>
 

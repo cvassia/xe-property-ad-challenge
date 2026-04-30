@@ -24,3 +24,6 @@ test-results
 # IDE
 .vscode
 .idea
+
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
