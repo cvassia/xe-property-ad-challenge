@@ -14,8 +14,8 @@ function mapAdToResponse(ad: {
 
     propertyCategory: string | null;
     apartmentType: string | null;
-    squareMeters: number | null;
-    energyClass: string | null;
+    squareMeters: number;
+    energyClass: string;
     floor: string | null;
     bedrooms: number | null;
     bathrooms: number | null;
@@ -84,7 +84,7 @@ adsRouter.post("/", async (request, response) => {
                 price: input.price,
                 description: input.description || null,
 
-                propertyCategory: input.propertyCategory,
+                propertyCategory: input.propertyCategory || null,
                 apartmentType: input.apartmentType || null,
                 squareMeters: input.squareMeters,
                 energyClass: input.energyClass,

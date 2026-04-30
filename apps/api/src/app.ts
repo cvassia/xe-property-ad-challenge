@@ -26,7 +26,6 @@ export function createApp() {
     });
   });
 
-  app.use("/uploads", express.static(uploadsDir));
 
   app.use("/api/areas", areasRouter);
   app.use("/api/ads", adsRouter);
