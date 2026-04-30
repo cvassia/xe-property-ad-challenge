@@ -42,7 +42,7 @@ export const propertyAdSchema: yup.ObjectSchema<PropertyAdFormValues> =
         type: yup
             .string()
             .oneOf(
-                ["rent", "buy", "exchange", "donation"],
+                ["rent", "buy", "exchange", "auction"],
                 "Please select a property type."
             )
             .required("Please select a property type."),
