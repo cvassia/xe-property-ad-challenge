@@ -253,7 +253,7 @@ export function PropertyAdForm() {
           </FieldLabel>
           <TextInput
             type="tel"
-            placeholder="e.g. +30 691 234 5678"
+            placeholder="e.g. 6912345678"
             autoComplete="tel"
             aria-invalid={Boolean(errors.contactPhone)}
             {...register("contactPhone")}
