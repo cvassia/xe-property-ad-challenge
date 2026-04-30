@@ -20,7 +20,7 @@ const validAdPayload = {
     constructionYear: 2000,
     renovationYear: 2020,
     condition: "renovated",
-    contactPhone: "691 234 5678",
+    contactPhone: "6912345678",
     area: {
         placeId: "ChIJ8UNwBh-9oRQR3Y1mdkU1Nic",
         mainText: "Athens",

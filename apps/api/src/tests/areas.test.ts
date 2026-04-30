@@ -47,4 +47,42 @@ describe("areas routes", () => {
             }
         ]);
     });
+
+    it("caches autocomplete suggestions for repeated normalized input", async () => {
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => [
+                {
+                    placeId: "place-nafplio",
+                    mainText: "Nafplio",
+                    secondaryText: "Ελλάδα"
+                }
+            ]
+        });
+
+        vi.stubGlobal("fetch", fetchMock);
+
+        const firstResponse = await request(app)
+            .get("/api/areas")
+            .query({ input: "naf" })
+            .expect(200);
+
+        const secondResponse = await request(app)
+            .get("/api/areas")
+            .query({ input: "NAF" })
+            .expect(200);
+
+        expect(firstResponse.body.data).toEqual([
+            {
+                placeId: "place-nafplio",
+                mainText: "Nafplio",
+                secondaryText: "Ελλάδα",
+                label: "Nafplio, Ελλάδα"
+            }
+        ]);
+
+        expect(secondResponse.body.data).toEqual(firstResponse.body.data);
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
 });
