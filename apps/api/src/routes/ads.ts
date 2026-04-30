@@ -28,6 +28,13 @@ function mapAdToResponse(ad: {
     areaMainText: string;
     areaSecondaryText: string;
 
+    media?: {
+        id: string;
+        url: string;
+        type: string;
+        filename: string;
+    }[];
+
     createdAt: Date;
     updatedAt: Date;
 }) {
@@ -55,6 +62,8 @@ function mapAdToResponse(ad: {
             mainText: ad.areaMainText,
             secondaryText: ad.areaSecondaryText
         },
+
+        media: ad.media ?? [],
 
         createdAt: ad.createdAt,
         updatedAt: ad.updatedAt
@@ -114,9 +123,20 @@ adsRouter.post("/", async (request, response) => {
 
 adsRouter.get("/:id", async (request, response) => {
     try {
+        const adId = request.params.id;
+
+        if (typeof adId !== "string") {
+            return response.status(400).json({
+                error: "Invalid property ad ID."
+            });
+        }
+
         const ad = await prisma.ad.findUnique({
             where: {
-                id: request.params.id
+                id: adId
+            },
+            include: {
+                media: true
             }
         });
 

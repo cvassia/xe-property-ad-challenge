@@ -10,3 +10,31 @@ export async function getPropertyAd(id: string): Promise<PropertyAd> {
 
     return result.data;
 }
+
+export async function uploadPropertyAdMedia(adId: string, files: File[]) {
+    if (files.length === 0) {
+        return [];
+    }
+
+    const formData = new FormData();
+
+    files.forEach((file) => {
+        formData.append("media", file);
+    });
+
+    const response = await fetch(`/api/uploads/ads/${adId}/media`, {
+        method: "POST",
+        body: formData
+    });
+
+    const result = (await response.json()) as {
+        data?: unknown[];
+        error?: string;
+    };
+
+    if (!response.ok) {
+        throw new Error(result.error ?? "Could not upload media files.");
+    }
+
+    return result.data ?? [];
+}

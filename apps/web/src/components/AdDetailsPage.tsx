@@ -85,6 +85,43 @@ const ListingHero = styled.div`
   }
 `;
 
+
+const MediaLayout = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(260px, 1fr);
+  gap: 12px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const MediaGrid = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const MediaTile = styled.div`
+  overflow: hidden;
+  min-height: 220px;
+  border-radius: 18px;
+  background: #eef4ff;
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    display: block;
+    object-fit: cover;
+  }
+`;
+
 const Breadcrumb = styled.nav`
   color: #667085;
   font-size: 0.9rem;
@@ -100,15 +137,6 @@ const Breadcrumb = styled.nav`
   }
 `;
 
-const CategoryBadge = styled.span`
-  width: fit-content;
-  padding: 7px 12px;
-  border-radius: 999px;
-  color: #1f4fbf;
-  background: #eef4ff;
-  font-size: 0.82rem;
-  font-weight: 900;
-`;
 
 const Title = styled.h1`
   margin: 0;
@@ -135,32 +163,6 @@ const Price = styled.div`
   letter-spacing: -0.04em;
 `;
 
-const Content = styled.div`
-  display: grid;
-  gap: 24px;
-  padding: 28px;
-
-  @media (max-width: 720px) {
-    padding: 22px;
-  }
-`;
-
-const Section = styled.section`
-  display: grid;
-  gap: 12px;
-
-  h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 1.1rem;
-  }
-
-  p {
-    margin: 0;
-    color: #4d5a70;
-    line-height: 1.75;
-  }
-`;
 
 const DetailsGrid = styled.dl`
   display: grid;
@@ -196,6 +198,173 @@ const DetailItem = styled.div<{ $full?: boolean }>`
     font-size: 1rem;
     font-weight: 800;
   }
+`;
+
+const MediaGallery = styled.section`
+  padding: 20px;
+  border-bottom: 1px solid #e7edf6;
+  background: #ffffff;
+
+  @media (max-width: 720px) {
+    padding: 16px;
+  }
+`;
+
+const MainMediaButton = styled.button`
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 520px;
+  border: 0;
+  border-radius: 18px;
+  padding: 0;
+  background: #eef4ff;
+  cursor: pointer;
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    display: block;
+    object-fit: cover;
+  }
+
+  @media (max-width: 900px) {
+    min-height: 320px;
+
+    img,
+    video {
+      min-height: 320px;
+    }
+  }
+`;
+
+const ThumbnailGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-content: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+const ThumbnailButton = styled.button`
+  position: relative;
+  overflow: hidden;
+  min-height: 154px;
+  border: 0;
+  border-radius: 18px;
+  padding: 0;
+  background: #eef4ff;
+  cursor: pointer;
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    min-height: 154px;
+    display: block;
+    object-fit: cover;
+  }
+`;
+
+const ThumbnailOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(17 24 39 / 52%);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 900;
+`;
+
+const LightboxOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(15 23 42 / 82%);
+`;
+
+const LightboxContent = styled.div`
+  position: relative;
+  width: min(1100px, 100%);
+  max-height: 90vh;
+  padding: 56px 72px;
+  border-radius: 24px;
+  background: #111827;
+
+  @media (max-width: 720px) {
+    padding: 56px 16px 24px;
+  }
+`;
+
+const LightboxMediaFrame = styled.div`
+  display: grid;
+  place-items: center;
+
+  img,
+  video {
+    max-width: 100%;
+    max-height: 72vh;
+    border-radius: 18px;
+    display: block;
+    object-fit: contain;
+  }
+`;
+
+const LightboxCloseButton = styled.button`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: #ffffff;
+  font-size: 1.4rem;
+  cursor: pointer;
+`;
+
+const LightboxArrowButton = styled.button<{ $left?: boolean; $right?: boolean }>`
+  position: absolute;
+  top: 50%;
+  ${({ $left }) => ($left ? "left: 16px;" : "")}
+  ${({ $right }) => ($right ? "right: 16px;" : "")}
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: #ffffff;
+  font-size: 1.4rem;
+  cursor: pointer;
+
+  @media (max-width: 720px) {
+    width: 40px;
+    height: 40px;
+  }
+`;
+
+const LightboxCounter = styled.div`
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
 `;
 
 const ContactCard = styled.section`
@@ -493,6 +662,7 @@ export function AdDetailsPage() {
   const { adId } = useParams<{ adId: string }>();
 
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
   const [ad, setAd] = useState<PropertyAd | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -534,6 +704,59 @@ export function AdDetailsPage() {
     };
   }, [adId]);
 
+
+  const mediaItems = ad?.media ?? [];
+
+  function openMedia(index: number) {
+    setActiveMediaIndex(index);
+  }
+
+  function closeMedia() {
+    setActiveMediaIndex(null);
+  }
+
+  function showPreviousMedia() {
+    if (activeMediaIndex === null || mediaItems.length === 0) {
+      return;
+    }
+
+    setActiveMediaIndex((activeMediaIndex - 1 + mediaItems.length) % mediaItems.length);
+  }
+
+  function showNextMedia() {
+    if (activeMediaIndex === null || mediaItems.length === 0) {
+      return;
+    }
+
+    setActiveMediaIndex((activeMediaIndex + 1) % mediaItems.length);
+  }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (activeMediaIndex === null) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeMedia();
+      }
+
+      if (event.key === "ArrowLeft") {
+        showPreviousMedia();
+      }
+
+      if (event.key === "ArrowRight") {
+        showNextMedia();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeMediaIndex, mediaItems.length]);
+
   return (
     <Page>
       <TopBar>
@@ -550,6 +773,8 @@ export function AdDetailsPage() {
       {!isLoading && !error && ad && (
         <Layout>
           <MainCard>
+
+
             <ListingHero>
               <Breadcrumb aria-label="Breadcrumb">
                 <Link to="/">Property</Link> / {formatPropertyType(ad.type)}
@@ -563,6 +788,46 @@ export function AdDetailsPage() {
 
               <Price>{formatPrice(ad.price)}</Price>
             </ListingHero>
+
+            {ad.media.length > 0 && (
+              <MediaGallery aria-label="Property media">
+                <MediaLayout>
+                  <MainMediaButton type="button" onClick={() => openMedia(0)}>
+                    {ad.media[0].type === "video" ? (
+                      <video src={ad.media[0].url} muted />
+                    ) : (
+                      <img src={ad.media[0].url} alt={`${ad.title} media 1`} />
+                    )}
+                  </MainMediaButton>
+
+                  <ThumbnailGrid>
+                    {ad.media.slice(1, 5).map((media, index) => {
+                      const realIndex = index + 1;
+                      const hiddenCount = ad.media.length - 5;
+                      const isLastVisibleThumbnail = index === 3 && ad.media.length > 5;
+
+                      return (
+                        <ThumbnailButton
+                          key={media.id}
+                          type="button"
+                          onClick={() => openMedia(realIndex)}
+                        >
+                          {media.type === "video" ? (
+                            <video src={media.url} muted />
+                          ) : (
+                            <img src={media.url} alt={`${ad.title} media ${realIndex + 1}`} />
+                          )}
+
+                          {isLastVisibleThumbnail && (
+                            <ThumbnailOverlay>+{hiddenCount}</ThumbnailOverlay>
+                          )}
+                        </ThumbnailButton>
+                      );
+                    })}
+                  </ThumbnailGrid>
+                </MediaLayout>
+              </MediaGallery>
+            )}
 
             <DetailsGrid>
               <DetailItem>
@@ -673,6 +938,42 @@ export function AdDetailsPage() {
             </MapCard>
           </Sidebar>
         </Layout>
+      )}
+      {activeMediaIndex !== null && ad && ad.media[activeMediaIndex] && (
+        <LightboxOverlay onClick={closeMedia}>
+          <LightboxContent onClick={(event) => event.stopPropagation()}>
+            <LightboxCloseButton type="button" onClick={closeMedia}>
+              ×
+            </LightboxCloseButton>
+
+            {ad.media.length > 1 && (
+              <>
+                <LightboxArrowButton type="button" $left onClick={showPreviousMedia}>
+                  ←
+                </LightboxArrowButton>
+
+                <LightboxArrowButton type="button" $right onClick={showNextMedia}>
+                  →
+                </LightboxArrowButton>
+              </>
+            )}
+
+            <LightboxMediaFrame>
+              {ad.media[activeMediaIndex].type === "video" ? (
+                <video src={ad.media[activeMediaIndex].url} controls autoPlay />
+              ) : (
+                <img
+                  src={ad.media[activeMediaIndex].url}
+                  alt={`${ad.title} media ${activeMediaIndex + 1}`}
+                />
+              )}
+            </LightboxMediaFrame>
+
+            <LightboxCounter>
+              {activeMediaIndex + 1} / {ad.media.length}
+            </LightboxCounter>
+          </LightboxContent>
+        </LightboxOverlay>
       )}
       {isPhoneModalOpen && ad && (
         <ModalOverlay

@@ -23,6 +23,8 @@ export type PropertyAd = {
         secondaryText: string;
     };
 
+    media: PropertyAdMedia[];
+
     createdAt: string;
     updatedAt?: string;
 };
@@ -30,4 +32,11 @@ export type PropertyAd = {
 export type PropertyAdResponse = {
     data?: PropertyAd;
     error?: string;
+};
+
+export type PropertyAdMedia = {
+    id: string;
+    url: string;
+    type: "image" | "video" | string;
+    filename: string;
 };

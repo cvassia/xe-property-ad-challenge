@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
+import { uploadPropertyAdMedia } from "../api/ads";
 import {
   propertyAdSchema,
   type PropertyAdFormValues
@@ -213,6 +214,25 @@ const TextArea = styled.textarea`
   padding: 14px;
 `;
 
+const FileInput = styled.input`
+  ${inputStyles}
+  min-height: 52px;
+  padding: 13px 14px;
+`;
+
+const MediaPreviewList = styled.ul`
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+const MediaPreviewItem = styled.li`
+  color: #4d5a70;
+  font-size: 0.9rem;
+`;
+
 const FieldHint = styled.span`
   color: #667085;
   font-size: 0.85rem;
@@ -358,6 +378,7 @@ export function PropertyAdForm() {
   const [areaValidationError, setAreaValidationError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [createdAd, setCreatedAd] = useState<CreatedAd | null>(null);
+  const [selectedMediaFiles, setSelectedMediaFiles] = useState<File[]>([]);
 
   const autocompleteRef = useRef<HTMLDivElement | null>(null);
 
@@ -525,6 +546,10 @@ export function PropertyAdForm() {
     }
   }
 
+  function handleMediaChange(files: FileList | null) {
+    setSelectedMediaFiles(files ? Array.from(files) : []);
+  }
+
   async function onSubmit(values: PropertyAdFormValues) {
     setSubmitError("");
     setCreatedAd(null);
@@ -556,6 +581,10 @@ export function PropertyAdForm() {
 
       if (!response.ok || !result.data) {
         throw new Error(result.error ?? "Could not create property ad.");
+      }
+
+      if (selectedMediaFiles.length > 0) {
+        await uploadPropertyAdMedia(result.data.id, selectedMediaFiles);
       }
 
       setCreatedAd(result.data);
@@ -915,6 +944,31 @@ export function PropertyAdForm() {
               <FieldErrorHint>{errors.description.message}</FieldErrorHint>
             )}
           </FieldMessageArea>
+        </Field>
+
+        <Field $full>
+          <FieldLabel>Photos or videos</FieldLabel>
+          <FileInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+            multiple
+            onChange={(event) => handleMediaChange(event.target.files)}
+          />
+          <FieldMessageArea>
+            <FieldHint>
+              Upload photos or videos. Supported formats: JPG, PNG, WEBP, MP4, WEBM.
+            </FieldHint>
+          </FieldMessageArea>
+
+          {selectedMediaFiles.length > 0 && (
+            <MediaPreviewList>
+              {selectedMediaFiles.map((file) => (
+                <MediaPreviewItem key={`${file.name}-${file.size}`}>
+                  {file.name}
+                </MediaPreviewItem>
+              ))}
+            </MediaPreviewList>
+          )}
         </Field>
       </FormGrid>
 
