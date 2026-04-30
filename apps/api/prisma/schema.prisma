@@ -13,7 +13,7 @@ model Ad {
   price             Int
   description       String?
 
-  propertyCategory  String   @default("apartment")
+  propertyCategory  String?   
   apartmentType     String?
   squareMeters      Int      @default(1)
   energyClass       String   @default("unknown")

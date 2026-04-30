@@ -1,9 +1,4 @@
 
-
-
-
-// PropertyAddForm
-
 export function formatPrice(price: number) {
     return new Intl.NumberFormat("el-GR", {
         style: "currency",
@@ -30,10 +25,8 @@ export function formatDate(value: string) {
     }).format(new Date(value));
 }
 
-export function formatOptionalValue(value: string | number | null | undefined) {
-    return value === null || value === undefined || value === ""
-        ? "Not provided"
-        : value;
+export function hasValue(value: string | number | null | undefined) {
+    return value !== null && value !== undefined && value !== "";
 }
 
 export function formatCondition(value: string | null | undefined) {
@@ -51,7 +44,7 @@ export function formatCondition(value: string | null | undefined) {
     return labels[value] ?? value;
 }
 
-export function formatPropertyCategory(value: string) {
+export function formatPropertyCategory(value: string | null | undefined) {
     const labels: Record<string, string> = {
         apartment: "Apartment",
         detached_house: "Detached house",
@@ -74,6 +67,8 @@ export function formatPropertyCategory(value: string) {
         bungalow: "Bungalow",
         farm_ranch: "Farm / ranch"
     };
-
+    if (!value) {
+        return ""
+    }
     return labels[value] ?? value;
 }

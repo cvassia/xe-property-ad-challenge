@@ -165,14 +165,14 @@ export const BrandMark = styled(Link)`
 `;
 
 export const BackLink = styled(Link)`
-  color: #3464d4;
-  font-size: 0.95rem;
-  font-weight: 800;
-  text-decoration: none;
 
-  &:hover {
-    text-decoration: underline;
-  }
+  background-color: #f5b402;
+  padding:10px 16px;
+  color: #ffffff;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
 `;
 
 export const Layout = styled.div`

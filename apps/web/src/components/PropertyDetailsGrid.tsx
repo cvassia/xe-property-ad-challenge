@@ -3,9 +3,9 @@ import { DetailItem, DetailsGrid } from "../styles";
 import {
     formatCondition,
     formatDate,
-    formatOptionalValue,
     formatPropertyCategory,
-    formatPropertyType
+    formatPropertyType,
+    hasValue
 } from "../helpers/helpers";
 
 type PropertyDetailsGridProps = {
@@ -20,10 +20,10 @@ export function PropertyDetailsGrid({ ad }: PropertyDetailsGridProps) {
                 <dd>{formatPropertyType(ad.type)}</dd>
             </DetailItem>
 
-            <DetailItem>
+            {hasValue(ad.propertyCategory) && <DetailItem>
                 <dt>Category</dt>
                 <dd>{formatPropertyCategory(ad.propertyCategory)}</dd>
-            </DetailItem>
+            </DetailItem>}
 
             <DetailItem>
                 <dt>Size</dt>
@@ -42,45 +42,54 @@ export function PropertyDetailsGrid({ ad }: PropertyDetailsGridProps) {
                 <dd>{ad.energyClass}</dd>
             </DetailItem>
 
-            <DetailItem>
+            {hasValue(ad.floor) && <DetailItem>
                 <dt>Floor</dt>
-                <dd>{formatOptionalValue(ad.floor)}</dd>
+                <dd>{ad.floor}</dd>
             </DetailItem>
+            }
 
-            <DetailItem>
+
+            {hasValue(ad.bedrooms) && <DetailItem>
                 <dt>Bedrooms</dt>
-                <dd>{formatOptionalValue(ad.bedrooms)}</dd>
+                <dd>{ad.bedrooms}</dd>
             </DetailItem>
+            }
 
-            <DetailItem>
+            {hasValue(ad.bathrooms) && <DetailItem>
                 <dt>Bathrooms</dt>
-                <dd>{formatOptionalValue(ad.bathrooms)}</dd>
+                <dd>{ad.bathrooms}</dd>
             </DetailItem>
+            }
 
-            <DetailItem>
+            {hasValue(ad.condition) && <DetailItem>
                 <dt>Condition</dt>
                 <dd>{formatCondition(ad.condition)}</dd>
             </DetailItem>
+            }
 
-            <DetailItem>
+            {hasValue(ad.constructionYear) && <DetailItem>
                 <dt>Construction year</dt>
-                <dd>{formatOptionalValue(ad.constructionYear)}</dd>
+                <dd>{(ad.constructionYear)}</dd>
             </DetailItem>
+            }
 
-            <DetailItem>
+            {hasValue(ad.renovationYear) && <DetailItem>
                 <dt>Renovation year</dt>
-                <dd>{formatOptionalValue(ad.renovationYear)}</dd>
+                <dd>{(ad.renovationYear)}</dd>
             </DetailItem>
+            }
 
-            <DetailItem>
+            {hasValue(ad.createdAt) && <DetailItem>
                 <dt>Created</dt>
                 <dd>{formatDate(ad.createdAt)}</dd>
             </DetailItem>
+            }
 
-            <DetailItem $full>
+            {hasValue(ad.description) && <DetailItem $full>
                 <dt>Description</dt>
-                <dd>{ad.description || "No extra description was provided."}</dd>
+                <dd>{ad.description}</dd>
             </DetailItem>
+            }
         </DetailsGrid>
     );
 }

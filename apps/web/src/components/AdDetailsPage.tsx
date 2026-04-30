@@ -53,9 +53,9 @@ export function AdDetailsPage() {
     <Page>
       <TopBar>
         <BrandMark to="/">
-          xe<span>.gr</span>
+          xe
         </BrandMark>
-        <BackLink to="/">← Create another property ad</BackLink>
+        <BackLink to="/">Create a property ad</BackLink>
       </TopBar>
 
       {isLoading && <Message>Loading property ad...</Message>}

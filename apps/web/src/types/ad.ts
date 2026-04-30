@@ -5,7 +5,7 @@ export type PropertyAd = {
     price: number;
     description: string | null;
 
-    propertyCategory: string;
+    propertyCategory: string | null;
     apartmentType: string | null;
     squareMeters: number;
     energyClass: string;
