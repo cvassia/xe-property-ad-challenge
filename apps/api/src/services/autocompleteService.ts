@@ -15,11 +15,11 @@ export async function searchAreas(input: string): Promise<AreaSuggestion[]> {
     const cachedAreas = autocompleteCache.get(cacheKey);
 
     if (cachedAreas) {
-        console.log("cache hit");
+        // console.log("cache hit");
         return cachedAreas;
     }
 
-    console.log("cache miss");
+    // console.log("cache miss");
 
     const url = new URL(env.autocompleteApiUrl);
     url.searchParams.set("input", input);
